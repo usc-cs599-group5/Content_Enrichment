@@ -10,17 +10,14 @@ public class content_enrichment
    {
         switch(args[0])
         {
-            case "sort":
-            {
-                
-            }
             case "ttr":
             {
                 TTRParser ttr=new TTRParser();
                 ttr.parse();
+                break;
             }
+            case "geo":
+                Geo.extract();
         }
-        
-   }
-      
+    }
 }

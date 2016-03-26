@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -classpath location-ner-model:target/Content_Enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar csci599.content_enrichment $@
