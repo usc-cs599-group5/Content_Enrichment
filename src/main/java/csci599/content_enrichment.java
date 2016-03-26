@@ -17,7 +17,8 @@ public class content_enrichment
                 break;
             }
             case "geo":
-                Geo.extract();
+                Geo.extract(new File(args[1]));
+                break;
         }
     }
 }
