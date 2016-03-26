@@ -8,7 +8,14 @@ import org.apache.tika.Tika;
 
 public class Geo {
     public static void extract() throws IOException {
-        Tika tika = new Tika(TikaConfig.getDefaultConfig().getDetector(), new GeoParser());
+        GeoParser parser;
+        try {
+            parser = new GeoParser();
+        } catch (Exception ex) {
+            System.err.println("Cannot load en-ner-location.bin. Make sure it's on the classpath.");
+            return;
+        }
+        Tika tika = new Tika(TikaConfig.getDefaultConfig().getDetector(), parser);
         Metadata meta = new Metadata();
         try (InputStream stream = TikaInputStream.get(new java.net.URL("https://raw.githubusercontent.com/chrismattmann/geotopicparser-utils/master/geotopics/polar.geot"), meta)) {
             tika.parse(stream, meta);
