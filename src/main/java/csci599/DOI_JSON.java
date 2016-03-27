@@ -3,6 +3,8 @@ package csci599;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 public class DOI_JSON
 {
@@ -19,17 +21,23 @@ public class DOI_JSON
             if (file.isDirectory()) {
                 generate_urls(file);
             } else {
-                urls.add(file.getName());
+                urls.add(file.getAbsolutePath().substring(3));
             }
         }
     }
     
     public void generate_JSON()
     {
-        Iterator i=urls.iterator();
+        /*Iterator i=urls.iterator();
         while(i.hasNext())
         {
             System.out.println(i.next());
+        }*/
+        try {
+            new ObjectMapper().writeValue(new File("DOI_URLs.json"), urls);
+            System.out.println("DOI_URLs.json created");
+        } catch (IOException ex) {
+            System.err.println("Error writing DOI_URLs.json");
         }
     }
 }
