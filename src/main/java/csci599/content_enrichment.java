@@ -19,6 +19,13 @@ public class content_enrichment
             case "geo":
                 Geo.extract(new File(args[1]));
                 break;
+            case "doi":
+            {
+                DOI_JSON doi=new DOI_JSON();
+                doi.generate_urls(new File("D:\\polar-test"));
+                doi.generate_JSON();
+                break;
+            }
         }
     }
 }
