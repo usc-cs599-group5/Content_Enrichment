@@ -2,13 +2,21 @@ package csci599;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Vector;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.ToXMLContentHandler;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 public class TTRParser
 {
@@ -28,17 +36,25 @@ public class TTRParser
         max=0.0;
     }
     
-    void parse() throws IOException
+    void parse(File folder) throws IOException
     {
-        forallfiles();
+         for (File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                parse(file);
+            } else {
+                System.out.println(file.getAbsolutePath().substring(3));
+                forallfiles(file);
+            }
+        }
     }
     
-    public void forallfiles() throws IOException
+    public void forallfiles(File f) throws IOException
     {
-        File f = new File("E:\\Sem 2\\CSCI 599\\Test\\62821ECFBF1ED615D51149EF92A6D738C745D8C68E07713839F638B16FAB84CC");
-        String mime = tika.detect(f);
-        System.out.println(mime);
-        StringBuffer contents=readFile(f);
+        //File f = new File("D:\\polar-fulldump\\63\\47\\167\\72\\32D211FA53EDEED26AA580CAA5F792A13F5C207872BF991CB25B8C2A10B90E6B");
+        StringBuffer contents = parseToHTML(f);
+        //String mime = tika.detect(f);
+        //System.out.println(mime);
+        //StringBuffer contents=readFile(f);
         contents=generateTTR(contents);
         ArrayList<String> text;
         text=new ArrayList<String>(generateClusters(contents));
@@ -372,5 +388,49 @@ public class TTRParser
         varience=varience/k;
         return Math.sqrt(varience);
     }
-   
+    
+    public static StringBuffer parseToHTML(File f)
+    {
+        ContentHandler handler = new ToXMLContentHandler();
+        AutoDetectParser parser = new AutoDetectParser();
+        Metadata metadata = new Metadata();
+        try (InputStream stream = new FileInputStream(f)) 
+        {
+            parser.parse(stream, handler, metadata);
+            System.out.println(handler.toString());
+            StringBuffer br = new StringBuffer(handler.toString());
+            br=trimXHTMLData(br);
+            return br;
+            //return handler.toString();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Exception occurred " + e); 
+        }
+        return new StringBuffer("");
+    }
+    
+    public static StringBuffer trimXHTMLData(StringBuffer contents) throws IOException
+    {
+        BufferedReader  br= new BufferedReader(new StringReader(contents.toString()));
+        String line="";
+        StringBuffer xhtml=new StringBuffer();
+        int i = 0;
+        while ((line = br.readLine()) != null)
+        {
+
+            if (!line.trim().isEmpty()) 
+            {    
+                 if (i > 0)
+                    xhtml.append("\n");
+                 xhtml.append(line.trim());
+                 i++;
+                 
+            }
+        }
+
+        
+        
+        return xhtml;
+    }
 }

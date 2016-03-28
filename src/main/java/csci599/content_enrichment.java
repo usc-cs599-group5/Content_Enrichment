@@ -13,7 +13,7 @@ public class content_enrichment
             case "ttr":
             {
                 TTRParser ttr=new TTRParser();
-                ttr.parse();
+                ttr.parse(new File("D:\\polar-test"));
                 break;
             }
             case "geo":
@@ -22,7 +22,7 @@ public class content_enrichment
             case "doi":
             {
                 DOI_JSON doi=new DOI_JSON();
-                doi.generate_urls(new File("D:\\polar-test"));
+                doi.generate_urls(new File("D:\\polar-fulldump"));
                 doi.generate_JSON();
                 break;
             }

@@ -21,6 +21,7 @@ public class DOI_JSON
             if (file.isDirectory()) {
                 generate_urls(file);
             } else {
+                System.out.println(file.getAbsolutePath().substring(3));
                 urls.add(file.getAbsolutePath().substring(3));
             }
         }
