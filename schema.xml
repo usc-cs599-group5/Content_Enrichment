@@ -114,6 +114,9 @@
    <!-- DOI -->
    <field name="doi" type="string" indexed="true" stored="true"/>
 
+   <!-- grobid -->
+   <dynamicField name="relatedPublications_*" type="string" indexed="true" stored="true"/>
+
    <!-- GeoTopicParser -->
    <field name="Geographic_NAME" type="string" indexed="true" stored="true"/>
    <field name="Geographic_LONGITUDE" type="float" indexed="true" stored="true"/>

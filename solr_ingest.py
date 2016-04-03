@@ -7,7 +7,7 @@ download and extract solr 4.10 from https://archive.apache.org/dist/lucene/solr/
 copy schema.xml to solr-4.10.4/example/solr/collection1/conf
 bin/solr start
 
-solr_ingest.py indexes these files: measurements.json, DOI.json, geotopic.json, sweet.json
+solr_ingest.py indexes these files: measurements.json, DOI.json, grobid.json, geotopic.json, sweet.json
 after running this script: http://localhost:8983/solr -> core admin -> reload
 
 schema docs: https://cwiki.apache.org/confluence/display/solr/Documents%2C+Fields%2C+and+Schema+Design
@@ -23,14 +23,19 @@ j = defaultdict(dict)
 with open('DOI.json', 'r') as f:
     for k, v in json.load(f).items():
         j[k]['doi'] = v
+with open('grobid.json', 'r') as f:
+    for doc in json.load(f):
+        for i, pub in enumerate(doc['relatedPublications']):
+            for k, v in pub.items():
+                j[doc['id']]['relatedPublications_' + k + '_' + str(i)] = v
 with open('geotopic.json', 'r') as f:
     for k, v in json.load(f).items():
         j[k].update(v)
 with open('sweet.json', 'r') as f:
-    for it in json.load(f):
-        for k, v in it.items():
+    for doc in json.load(f):
+        for k, v in doc.items():
             if k.startswith('NER_Sweet_'):
-                j[it['id']][k] = v
+                j[doc['id']][k] = v
 for k, v in j.items():
     v['id'] = k
 solr.index_json('collection1', json.dumps(list(j.values())))
