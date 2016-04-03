@@ -108,6 +108,9 @@
 
    <!-- *** polar modifications start here *** -->
 
+   <!-- measurements -->
+   <field name="units" type="string" indexed="true" stored="true" multiValued="true"/>
+
    <!-- DOI -->
    <field name="doi" type="string" indexed="true" stored="true"/>
 
@@ -118,6 +121,9 @@
    <dynamicField name="Optional_NAME*" type="string" indexed="true" stored="true"/>
    <dynamicField name="Optional_LONGITUDE*" type="float" indexed="true" stored="true"/>
    <dynamicField name="Optional_LATITUDE*" type="float" indexed="true" stored="true"/>
+
+   <!-- sweet -->
+   <dynamicField name="NER_Sweet_*" type="string" indexed="true" stored="true" multiValued="true"/>
 
    <!-- *** polar modifications end here *** -->
 
