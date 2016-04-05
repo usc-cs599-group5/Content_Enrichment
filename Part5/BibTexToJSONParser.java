@@ -1,5 +1,3 @@
-package csci599;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,7 +7,7 @@ import java.io.PrintWriter;
 
 public class BibTexToJSONParser {
     public static void main(String arg[]) throws IOException{
-        FormatJSON f = new FormatJSON();
+        BibTexToJSONParser f = new BibTexToJSONParser();
         f.formatdata(new File(arg[0]));
     }
     public void formatdata(File f) throws FileNotFoundException, IOException{

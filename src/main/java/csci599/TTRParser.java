@@ -7,35 +7,31 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Vector;
 import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 public class TTRParser
 {
-    ArrayList<Double> ttr,smoothedTTR;
-    Vector<Double> clusters1[];
-    Vector<Integer> clusters2[];
     private static Tika tika;
+    ArrayList<Double> ttr,smoothedTTR;
     private static double min,max;
-    
-    
+        
     TTRParser()
     {
-        ttr=new ArrayList<Double>();
-        smoothedTTR=new ArrayList<Double>();
+        ttr=new ArrayList<Double>(); //initialize TTR array
+        smoothedTTR=new ArrayList<Double>(); //smoothed TTR of the file
         tika = new Tika();
         min=0.0;
         max=0.0;
     }
-    
+    //for each file
     void parse(File folder) throws IOException
     {
          for (File file : folder.listFiles()) {
@@ -50,19 +46,27 @@ public class TTRParser
     
     public void forallfiles(File f) throws IOException
     {
-        //File f = new File("D:\\polar-fulldump\\63\\47\\167\\72\\32D211FA53EDEED26AA580CAA5F792A13F5C207872BF991CB25B8C2A10B90E6B");
-        StringBuffer contents = parseToHTML(f);
-        //String mime = tika.detect(f);
-        //System.out.println(mime);
-        //StringBuffer contents=readFile(f);
-        contents=generateTTR(contents);
+        StringBuffer contents = parseToHTML(f);//get the XHTML format of the file
+        contents=generateTTR(contents);//calculate the TTR of the file
         ArrayList<String> text;
-        text=new ArrayList<String>(generateClusters(contents));
-        System.out.println("**********************************************OUTPUT OF PART A*******************************");
-        for(int i=0;i<text.size();i++)
-            System.out.println(text.get(i));
+        text=new ArrayList<String>(generateClusters(contents));//get the clusters using K-Means clustering
+        //System.out.println("**********************************************OUTPUT OF PART A*******************************");
+        PrintWriter writer = new PrintWriter("F:\\DOI\\TTR_PDFs\\" + f.getName(),"UTF-8");//get only text part of the file
+            try{           
+                for(int i=0;i<text.size();i++){
+                    writer.println(text.get(i));
+                    System.out.println(text.get(i));
+                }
+                ttr.clear();
+                smoothedTTR.clear();
+                min=0;
+                max=0;
+            }
+            finally{
+                writer.close();
+            }
     }
-    
+    //Reads the file
     public static StringBuffer readFile(File f) throws FileNotFoundException, IOException
     {
         BufferedReader in = new BufferedReader(new FileReader(f));
@@ -81,15 +85,13 @@ public class TTRParser
                  
             }
         }
-        //System.out.println(sb);
         return sb;
     }
-    
+    //generates TTR of the file
     public StringBuffer generateTTR(StringBuffer contents) throws FileNotFoundException, IOException
     {
         
         contents=removeUnwantedTags(contents);
-        
         String content=contents.toString();
         BufferedReader br = new BufferedReader(new StringReader(content));
         String line=null;
@@ -119,13 +121,9 @@ public class TTRParser
             j++;
         }
         smoothening1();
-        //smoothening2();
-        System.out.println("***********************************TTRs********************************************");
-        for(int i=0;i<ttr.size();i++)
-            System.out.println("New TTR: "+smoothedTTR.get(i)+" TTR: "+ttr.get(i));
         return contents;
     }
-    
+    //removes script,meta,link,style and comments from the file
     public StringBuffer removeUnwantedTags(StringBuffer html)
     {
         int start;
@@ -168,71 +166,13 @@ public class TTRParser
                 continue;
             html2.append(html.charAt(i));
         }
-        //System.out.println(html2);
         return html2;
     }
-    
-    public void smoothening2()
-    {
-        double[] ttr1=new double[ttr.size()];
-        for(int i=0;i<ttr.size();i++)
-            ttr1[i]=ttr.get(i);
-        double sigma=Math.ceil(calculateStandardDeviation(ttr1));
-        double[] newTTR1=new double[ttr1.length];
-        double[] newTTR2=new double[newTTR1.length];
-        double[] newTTR3=new double[newTTR2.length];
-        for(int i=0;i<ttr1.length;i++)
-        {
-            newTTR1[i]=ttr1[i];
-            newTTR2[i]=ttr1[i];
-            newTTR3[i]=ttr1[i];
-        }
-        //equation1
-        for(int i=0;i<=(2*sigma);i++)
-        {
-            newTTR1[i]=0.0;
-            for(int j=(int) (-1*sigma);j<=sigma;j++)
-                newTTR1[i]=newTTR1[i]+Math.pow(Math.E, ((-1*j*j)/(2*sigma*sigma)));
-            newTTR2[i]=newTTR1[i];
-            newTTR3[i]=newTTR2[i];
-        }
-        //equation2
-        for(int i=(int)sigma;i<=(2*sigma);i++)
-        {
-            double sum=0.0;
-            for(int j=0;j<=sigma;j++)
-                sum=sum+newTTR1[j];
-            newTTR2[i]=newTTR2[i]/sum;
-            newTTR3[i]=newTTR2[i];
-        }
-        //equation3
-        for(int i=(int)sigma;i<=(ttr1.length-(int)sigma);i++)
-        {
-            newTTR3[i]=0.0;
-            for(int j=(int)(-1*sigma);j<=sigma;j++)
-            {
-                if((j+(int)sigma)<newTTR2.length&&(i-j)<ttr1.length)
-                    newTTR3[i]=newTTR3[i]+(newTTR2[j+(int)sigma]*ttr1[i-j]);
-            }
-        }
-        min=0.0;
-        max=0.0;
-        for(int i=0;i<newTTR3.length;i++)
-        {
-            smoothedTTR.add(newTTR3[i]);
-            if(min>newTTR3[i])
-                min=newTTR3[i];
-            if(max<newTTR3[i])
-                max=newTTR3[i];
-        }
-        System.out.println("min="+min);
-        System.out.println("max="+max);
-    }
-    
+    //performs smoothening
     public void smoothening1()
     {
         //smoothening formula used from paper https://www3.nd.edu/~tweninge/pubs/WH_TIR08.pdf
-        int r=1;
+        int r=10;
         min=0.0;
         max=0.0;
         for(int i=0;i<ttr.size();i++)
@@ -253,11 +193,13 @@ public class TTRParser
                 max=ek;
         }
     }
-    
+    //performs K-means clustering
     public ArrayList<String> generateClusters(StringBuffer contents) throws IOException
     {
         boolean endClustering=false;
         int k=3;
+        Vector<Double> clusters1[];
+        Vector<Integer> clusters2[];
         clusters1=new Vector[k];
         clusters2=new Vector[k];
         for(int i=0;i<k;i++)
@@ -329,14 +271,12 @@ public class TTRParser
             }    
         }
         double standardDeviation=calculateStandardDeviation(means);
-        System.out.println("Standard Deviation: "+standardDeviation);
         boolean considerCluster[]=new boolean[k];
         for(int i=0;i<k;i++)
         {
             if(means[i]>=standardDeviation)
                 considerCluster[i]=true;
         }
-        //output the lines from the trucated file which are present in the clusters2 vector for which considerCluster is true
         String content=contents.toString();
         BufferedReader br = new BufferedReader(new StringReader(content));
         String line=null;
@@ -359,7 +299,7 @@ public class TTRParser
         }
         return lines;
     }
-    
+    //calculate means of the clusters
     public double[] findMeans(double[] means,int k)
     {
         double val=(max-min)/(k+1);
@@ -371,7 +311,7 @@ public class TTRParser
         }
         return means;
     }
-    
+    //calculate standard deviation
     public double calculateStandardDeviation(double[] means)
     {
         double mean=0.0;
@@ -388,7 +328,7 @@ public class TTRParser
         varience=varience/k;
         return Math.sqrt(varience);
     }
-    
+    //get the XHTML form of the file
     public static StringBuffer parseToHTML(File f)
     {
         ContentHandler handler = new ToXMLContentHandler();
@@ -401,7 +341,6 @@ public class TTRParser
             StringBuffer br = new StringBuffer(handler.toString());
             br=trimXHTMLData(br);
             return br;
-            //return handler.toString();
         }
         catch(Exception e)
         {
@@ -409,7 +348,7 @@ public class TTRParser
         }
         return new StringBuffer("");
     }
-    
+    //truncates the lines of the file
     public static StringBuffer trimXHTMLData(StringBuffer contents) throws IOException
     {
         BufferedReader  br= new BufferedReader(new StringReader(contents.toString()));
@@ -428,9 +367,6 @@ public class TTRParser
                  
             }
         }
-
-        
-        
         return xhtml;
     }
 }
