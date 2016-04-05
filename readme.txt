@@ -1,9 +1,10 @@
 Segregated files using copyFiles
 
 Part 3:
-1) Performed TTR parsing using TTRParser.java
-2) Extracted measurements using getMeasurements.sh
-3) measurements.json output
+1) Created list of old urls using DOI_JSON.java.
+2) Performed TTR parsing using TTRParser.java
+3) Extracted measurements using getMeasurements.sh
+4) measurements.json output
 
 Part 4:
 1) used yourls.org to get the initial set up done
