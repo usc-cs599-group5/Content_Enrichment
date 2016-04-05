@@ -32,6 +32,13 @@ javac BibtextoJSONParser.java
 # Execute generateGrobid.sh file to generate grobid.json file.
 sh generateGrobid.sh
 
+Part 6:
+Running this step requires setting the classpath, so we made the content-enrichment script to make it easier to run this. Run it like this:
+
+./content-enrichment geo /path/to/files
+
+The output is saved to geotopic.json. Note that the shell script may choke if there are spaces in the path you give it.
+
 Part 7:
 # generate regex file to be used in NER
 python generateRegex.py > regex.txt
@@ -46,6 +53,28 @@ Part 8:
 python merge_features.py
 # generate merged_features_with_score.json that contains metadata score.
 python metadata_score.py
+
+Part 9:
+For better or worse, we have several slightly different versions of our program and schema to ingest JSON output into Solr 4.10.4. The original version is in the Part9And10 folder, but parts 11 and 12 use modified versions in their respective "solr cores" folders to store different JSON data in separate Solr cores.
+
+Before running solr_ingest.py:
+pip3 install --user SolrClient
+Copy schema.xml to solr-4.10.4/example/solr/collection1/conf (replace collection1 with appropriate core name)
+Start up solr and create cores called collection1, geotopic, grobid, measurements, and sweet.
+
+Then cd into the directory that solr_ingest is in and run:
+python3 ./solr_ingest.py
+
+Then reload the Solr core.
+
+In parts 11 and 12, you may have to copy schema.xml and run solr_ingest.py in each of the folders in "solr cores".
+
+Part 10:
+Annoyingly, the Memex GeoParser insists on running its own (quite slow) NER instead of using the already-extracted locations in our Solr index. We originally tried both importing our Solr index using the UI and writing a script to directly inject our NER extractions into GeoParser's Solr index, but after running into issues, the solution we eventually used was to save our location extractions to files in GeoParser's uploaded_files directory. This was less problematic than trying to import our Solr index, and lets NER extraction run much faster than giving GeoParser the raw Polar files. To run our script, cd into Part9And10 and run:
+
+./memex_geoparser_ingest.py /path/to/GeoParser
+
+Then reload the GeoParser web page.
 
 Part 11:
 # To setup the Solr cores for measurement extractions, related publications and authors ,extracted locations and SWEET features follow the instruction on the given link and name them as measurement,grobid,geotopic and sweet respectively
