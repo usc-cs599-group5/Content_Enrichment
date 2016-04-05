@@ -8,7 +8,6 @@ copy schema.xml to solr-4.10.4/example/solr/collection1/conf
 bin/solr start
 
 solr_ingest.py indexes these files: measurements.json, DOI.json, grobid.json, geotopic.json, sweet.json
-after running this script: http://localhost:8983/solr -> core admin -> reload
 
 schema docs: https://cwiki.apache.org/confluence/display/solr/Documents%2C+Fields%2C+and+Schema+Design
 clear solr index: https://wiki.apache.org/solr/FAQ#How_can_I_delete_all_documents_from_my_index.3F
@@ -40,3 +39,4 @@ for k, v in j.items():
     v['id'] = k
 solr.index_json('collection1', json.dumps(list(j.values())))
 solr.local_index('collection1', 'measurements.json')
+solr.commit('collection1')
