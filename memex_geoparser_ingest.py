@@ -17,6 +17,6 @@ with open('geotopic.json', 'r') as f:
                 locations.add(v)
 # partition into several files because GeoParser chokes on large files
 locations = list(locations)
-for i in range(len(locations) // partition):
+for i in range(len(locations) // partition + 1):
     with open(sys.argv[1] + '/geoparser_app/static/uploaded_files/' + str(i), 'w') as f:
         f.write('\n'.join(locations[i*partition : (i+1)*partition]))
