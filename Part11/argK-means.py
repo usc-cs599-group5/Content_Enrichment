@@ -39,8 +39,9 @@ def compute_Mean(list_of_points):
         new_centroid.features[feature] = float(dimension_sum)/len(list_of_points)
 
     return new_centroid
-
-
+'''
+    use tika-similarity for cluster assignment
+'''
 def cluster_assignment(list_of_points, centroids):
     '''
     Assign points to nearest centroid 

@@ -6,7 +6,7 @@
 	$query="*:*";
 	$results=false;
 
-	if($query)
+	if($query&&isset($_REQUEST['q']))
 	{
 		if($_REQUEST['q']=="grobid"||$_REQUEST['q']=="geotopic"||$_REQUEST['q']=="sweet")
 		{
