@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>URL Shortner</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="DOI_URLs_1.json"></script>
+<script>
+
+var json_string='{"url_pairs":[';
+
+	function generate_urls()
+	{
+		var api_url  = 'http://polar.usc.edu/yourls-api.php';//call yourls's url shortner api
+		var urls=JSON.parse(data);
+		var count=0;
+		for(i=0;i<urls.length;i++)
+		{
+			var url=urls[i];
+			var response = $.get( api_url, {
+				username: "root",
+				password: "csci599",
+				action:   "shorturl",
+				format:   "json",
+				url:      url
+    	},
+    	function(data) {
+    		console.log(count+" "+data.shorturl);
+        	if(json_string.length==14)
+        		json_string=json_string+'{';
+        	else	
+        		json_string=json_string+',{';
+        	json_string=json_string+'"oldurl":"'+urls[count]+'",';
+        	json_string=json_string+'"newurl":"'+data.shorturl+'"';
+        	json_string=json_string+"}";
+        	count++;
+        	if(count==urls.length)
+        		{
+        			json_string=json_string+']}';
+        			print_urls();
+        		}
+        }
+		);
+	}
+}
+function print_urls()
+		{
+			var writeJSON='http://polar.usc.edu/writeJSON.php';//generate the json for the files
+			var response = $.get( writeJSON, {
+    				urls: json_string
+    			},
+    			function(data) {
+    			}
+			);
+		}
+
+</script>
+</head>
+<body>
+	URL Shortner
+	<button onclick="generate_urls()">Click To Start Generating Short URLs!</button>
+	</body>
+<html>
