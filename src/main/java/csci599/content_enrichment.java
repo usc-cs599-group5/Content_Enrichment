@@ -10,10 +10,15 @@ public class content_enrichment
    {
         switch(args[0])
         {
+            case "copy":
+            {
+                copyFiles copyf = new copyFiles();
+                copyf.copy(new File(args[1]),new File(args[2]));
+            }
             case "ttr":
             {
                 TTRParser ttr=new TTRParser();
-                ttr.parse(new File("D:\\polar-test"));
+                ttr.parse(new File(args[1]));
                 break;
             }
             case "geo":
@@ -22,9 +27,14 @@ public class content_enrichment
             case "doi":
             {
                 DOI_JSON doi=new DOI_JSON();
-                doi.generate_urls(new File("D:\\polar-fulldump"));
+                doi.generate_urls(new File(args[1]));
                 doi.generate_JSON();
                 break;
+            }
+            case "tJParser":
+            {
+                textToJSONParser tr = new textToJSONParser();
+                tr.generateJSON7(new File(args[1]));
             }
         }
     }

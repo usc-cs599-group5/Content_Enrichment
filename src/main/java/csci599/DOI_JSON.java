@@ -29,11 +29,6 @@ public class DOI_JSON
     
     public void generate_JSON()
     {
-        /*Iterator i=urls.iterator();
-        while(i.hasNext())
-        {
-            System.out.println(i.next());
-        }*/
         try {
             new ObjectMapper().writeValue(new File("DOI_URLs.json"), urls);
             System.out.println("DOI_URLs.json created");

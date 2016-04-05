@@ -1,49 +1,73 @@
-Segregated files using copyFiles
+Compiling and running
+---------------------
+
+We programmend in Java 8 and used Maven as our build system. We used Tika version 1.12. To download all dependencies and compile, run:
+mvn package
+
+An important thing to note is we run the algorithms on subset of data. We use "copyFiles.java" to generate lists of files to process, then we run the algorithms using these file lists. The motivation behind this is explained in our report. 
+java -jar target/Content-Enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar copy <path of source directory> <path of destination directory>
+Then to run, execute following commands for different parts:
 
 Part 3:
-1) Created list of old urls using DOI_JSON.java.
-2) Performed TTR parsing using TTRParser.java
-3) Extracted measurements using getMeasurements.sh
-4) measurements.json output
+# generate DOI_URLs.json which contains list of urls to be shortened.
+java -jar target/Content-Enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar doi <path to directory>
+# perform ttr parsing using following command
+java -jar target/Content-Enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar ttr <path to directory>
+# Execute shell script from command prompt to generate measurements.json file.
+sh getMeasurements.sh
 
 Part 4:
-1) used yourls.org to get the initial set up done
-2) used xampp as a local php and database server
-3) urlsShortner.html calls the yourls's api and writeJSON.php
-4) writeJSON.php generates the output JSON
-5) config.php is the configuration file
-6) DOI.json output
+# Follow the instruction on http://yourls.org/#Install for initial setup.
+# Setup php and database server. We used XAMPP for this assignment. Download link :https://www.apachefriends.org/index.html
+# We used config.php configuration file for initial configuration.
+# Upload urlsShortner.html and writeJSON.php on the server. It calls yourls.api.
+# Run urlsShortner.html and click on generateURL button. You will get DOI.json as the output.
 
 Part 5:
-1) generateGrobid.sh calls nltk server and gets the author information and then using scholar.py to call google-scholar-api and get the related publications information
-2) scholar.py returns results in BibTex to convert BibTex to JSON
-3) grobid.json output
+We run this program from Ubuntu's command prompt.
+# compile BibTextoJSONParser.java using following command
+javac BibtextoJSONParser.java
+# Execute generateGrobid.sh file to generate grobid.json file.
+sh generateGrobid.sh
 
 Part 7:
-1) generateRegex.py generates the regex to be used in NER
-2) regex.txt contains the regex generarted
-3) generateSweet.sh calls NER and gets the sweet concepts in a text file sweet.txt
-4) textToJSONParser.java generates JSON from sweet.txt
-5) sweet.json output
+# generate regex file to be used in NER
+python generateRegex.py > regex.txt
+# Follow the instruction of Using Regular Expression from https://wiki.apache.org/tika/TikaAndNER
+# Run following command to get sweet.txt file
+sh generateSweet.sh > sweet.txt
+# Generate sweet.json file from sweet.txt
+java -jar target/Content-Enrichment-1.0-SNAPSHOT-jar-with-dependencies.jar tJParser [Path to sweet.txt]
 
 Part 8:
-1) merge_features.py merges the features of all the output jsons and creates merged_features.json
-3) metadata_score.py calculates metadatsscores and stores in merged_features_with_score.json
+# merge features from different json outputs and create merged_features.json.
+python merge_features.py
+# generate merged_features_with_score.json that contains metadata score.
+python metadata_score.py
 
 Part 11:
-1) argK-means.py reads json from solr and generates clusters of sweet,grobid and measurements in jsons
-2) argK-meansForGeo does same for geotopic
-3) .json outputs
-4) solr cores solr schemas and indexing scripts
-5) d3-d3 library files
-6) .html output d3s
+# To setup the Solr cores for measurement extractions, related publications and authors ,extracted locations and SWEET features follow the instruction on the given link and name them as measurement,grobid,geotopic and sweet respectively
+https://www.codeenigma.com/host/faq/how-do-i-create-solr-core-my-server
+# Replace Schema.xml files to their corresponding conf folder for their cores.
+# Generate index
+python solr_ingest.py
+# generate clusters using K-means and tika-similarity for sweet,grobid and measurements
+python argK-means.py --inCore CORENAME --outJSON OUTJSON --Kvalue KVALUE
+# generate clusters for geotopic
+python argK-meansForGeo.py --inCore CORENAME --outJSON OUTJSON --Kvalue KVALUE
+# You can visualize the clusters using k-means-geotopic.html,k-means-grobid.html,k-means-sweet.html and k-means-measurements.html
+NOTE: Make sure that d3 folder is in the same directory as k-means-*.html files and the OUTJSON files are named geo-clusters.json,grobid-clusters.json,measurements-clusters.json and sweet-clusters.json.
 
 Part 12:
-1) D3VisualizationWebsire.php webpage for selecting d3 visualization
-2) used solr-php-client in 1
-3) d3*_ contains d3 visualization files
-4) solr cores solr schemas and indexing scripts
+# Load all files in Part 12 folder to the htdocs folder of your localhost/apache folder.
+# D3 Visualizations are in the d3*_ folders.
+NOTE: Same Solr cores are used as in Part 11.
 
 Part 14:
-1) getExifData.sh calls exiftool parser
-2) exif.json output
+# Perform initial setup using http://wiki.apache.org/tika/EXIFToolParser
+# generate exif.json by executing following command
+sh getExifData.sh
+
+NOTE : Following files contains absolute path which needs to be changed according to the requirement.
+getMeasurementUnits.sh,TTRParser.java,BibTextoJSONParser.java,generateGrobid.sh,generateRegex.py,generateSweet.sh,textToJSONParser.java,merged_features.py,metadata_score.py,getExifData.sh
+
