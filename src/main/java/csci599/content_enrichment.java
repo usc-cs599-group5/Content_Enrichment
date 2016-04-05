@@ -14,6 +14,7 @@ public class content_enrichment
             {
                 copyFiles copyf = new copyFiles();
                 copyf.copy(new File(args[1]),new File(args[2]));
+                break;
             }
             case "ttr":
             {
@@ -35,6 +36,7 @@ public class content_enrichment
             {
                 textToJSONParser tr = new textToJSONParser();
                 tr.generateJSON7(new File(args[1]));
+                break;
             }
         }
     }
