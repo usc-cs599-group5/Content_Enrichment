@@ -30,6 +30,9 @@ with open('grobid.json', 'r') as f:
 with open('geotopic.json', 'r') as f:
     for k, v in json.load(f).items():
         j[k].update(v)
+with open('measurements.json', 'rb') as f:
+    for doc in json.loads(f.read().decode(errors='ignore')):
+        j[doc['id']]['units'] = doc['units']
 with open('sweet.json', 'r') as f:
     for doc in json.load(f):
         for k, v in doc.items():
@@ -38,5 +41,3 @@ with open('sweet.json', 'r') as f:
 for k, v in j.items():
     v['id'] = k
 solr.index_json('collection1', json.dumps(list(j.values())))
-solr.local_index('collection1', 'measurements.json')
-solr.commit('collection1')
